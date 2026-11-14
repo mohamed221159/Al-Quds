@@ -1,0 +1,1906 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>تلاجة القدس</title>
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="vendor/supabase.min.js"></script>
+    <script src="config.js"></script>
+    <style>
+      :root {
+        --bg: #eaf2f6;
+        --sheet: #fff;
+        --rule: #cfdde5;
+        --ink: #13232c;
+        --ink2: #51656f;
+        --cover: #0f3a52;
+        --brass: #d8b46a;
+        --in: #1f6f4a;
+        --out: #b1342a;
+        --gold: #9a6a12;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          15px/1.5 "Segoe UI",
+          Tahoma,
+          system-ui,
+          sans-serif;
+      }
+      header {
+        background: var(--cover);
+        color: #fff;
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        padding: 10px 18px;
+        flex-wrap: wrap;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 20px;
+        color: var(--brass);
+      }
+      nav {
+        display: flex;
+        gap: 4px;
+        flex: 1;
+        flex-wrap: wrap;
+      }
+      nav button {
+        background: none;
+        border: 0;
+        color: #bcd3df;
+        padding: 8px 14px;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        font: inherit;
+      }
+      nav button.on {
+        background: var(--bg);
+        color: var(--ink);
+        font-weight: 700;
+      }
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 16px;
+      }
+      .sheet {
+        background: var(--sheet);
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 14px;
+        margin-bottom: 14px;
+      }
+      .b {
+        border: 1px solid var(--rule);
+        background: #fff;
+        border-radius: 8px;
+        padding: 7px 14px;
+        cursor: pointer;
+        font: inherit;
+      }
+      .b.pri {
+        background: var(--cover);
+        color: #fff;
+        border-color: var(--cover);
+      }
+      .b.red {
+        color: var(--out);
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        align-items: center;
+        margin: 8px 0;
+      }
+      .strip {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+      .strip div {
+        background: var(--sheet);
+        border: 1px solid var(--rule);
+        border-radius: 10px;
+        padding: 10px 12px;
+      }
+      .strip span {
+        display: block;
+        color: var(--ink2);
+        font-size: 13px;
+      }
+      .strip b {
+        font-size: 20px;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 7px 8px;
+        border-bottom: 1px solid var(--rule);
+        text-align: right;
+      }
+      th {
+        background: #f3f8fa;
+        font-size: 13px;
+        color: var(--ink2);
+      }
+      .n {
+        font-variant-numeric: tabular-nums;
+      }
+      .in {
+        color: var(--in);
+      }
+      .out {
+        color: var(--out);
+      }
+      .gold {
+        color: var(--gold);
+      }
+      .tag {
+        font-size: 12px;
+        border-radius: 6px;
+        padding: 1px 8px;
+        background: #e3eef4;
+      }
+      .tag.w {
+        background: #f4e7c8;
+      }
+      .tag.s {
+        background: #dcebd9;
+      }
+      .tag.x {
+        background: #f3d9d6;
+      }
+      input,
+      select {
+        font: inherit;
+        padding: 7px 9px;
+        border: 1px solid var(--rule);
+        border-radius: 7px;
+        background: #fff;
+        color: var(--ink);
+        width: 100%;
+      }
+      label {
+        display: block;
+        margin: 8px 0;
+        font-size: 13px;
+        color: var(--ink2);
+      }
+      #modal {
+        position: fixed;
+        inset: 0;
+        background: #0008;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 30px 10px;
+        overflow: auto;
+        z-index: 9;
+      }
+      #modal .box {
+        background: #fff;
+        border-radius: 12px;
+        padding: 18px;
+        width: min(640px, 100%);
+      }
+      #modal h3 {
+        margin: 0 0 8px;
+      }
+      .ln {
+        display: grid;
+        grid-template-columns: 3fr 1fr 1fr auto;
+        gap: 6px;
+        margin: 6px 0;
+      }
+      .seg {
+        display: flex;
+        gap: 6px;
+      }
+      .seg button {
+        flex: 1;
+        padding: 9px;
+        border: 1px solid var(--rule);
+        background: #fff;
+        border-radius: 8px;
+        cursor: pointer;
+        font: inherit;
+      }
+      .seg button.on {
+        background: var(--cover);
+        color: #fff;
+      }
+      .tot {
+        font-size: 18px;
+        margin: 10px 0;
+      }
+      .pos {
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        gap: 14px;
+        align-items: start;
+      }
+      @media (max-width: 900px) {
+        .pos {
+          grid-template-columns: 1fr;
+        }
+      }
+      .big {
+        padding: 14px 10px;
+        border-radius: 12px;
+        border: 2px solid var(--rule);
+        background: #fff;
+        cursor: pointer;
+        font: inherit;
+        font-size: 17px;
+        color: var(--ink);
+      }
+      .big.on,
+      .tile.on {
+        background: var(--cover);
+        color: #fff;
+        border-color: var(--cover);
+      }
+      .big.on small,
+      .tile.on small {
+        color: #cfe3ee;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(125px, 1fr));
+        gap: 8px;
+        margin: 6px 0;
+      }
+      .tile {
+        padding: 10px 6px;
+        min-height: 76px;
+        text-align: center;
+        border: 2px solid var(--rule);
+        border-radius: 12px;
+        background: #fff;
+        cursor: pointer;
+        font: inherit;
+        font-size: 16px;
+        color: var(--ink);
+      }
+      .tile small {
+        display: block;
+        color: var(--ink2);
+        font-size: 12px;
+      }
+      .tile.low {
+        border-color: var(--out);
+      }
+      .tile.low small:last-child {
+        color: var(--out);
+        font-weight: 700;
+      }
+      .pos h4 {
+        margin: 14px 0 4px;
+        color: var(--ink2);
+      }
+      .alert {
+        background: #fdeceb;
+        border: 1px solid #e7b3ae;
+        color: #7d1f17;
+        border-radius: 10px;
+        padding: 10px 14px;
+        margin-bottom: 12px;
+      }
+      .toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #7d1f17;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 10px;
+        z-index: 20;
+        max-width: 90vw;
+      }
+      .empty {
+        color: var(--ink2);
+        padding: 14px;
+        text-align: center;
+      }
+      .login {
+        max-width: 340px;
+        margin: 12vh auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script>
+      const $ = (s) => document.querySelector(s),
+        app = $("#app");
+      const esc = (s) =>
+        String(s ?? "").replace(
+          /[&<>"]/g,
+          (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c],
+        );
+      const f = (n) =>
+        (Math.round((+n || 0) * 100) / 100).toLocaleString("en-US");
+      const iso = () => {
+        const d = new Date();
+        return (
+          d.getFullYear() +
+          "-" +
+          String(d.getMonth() + 1).padStart(2, "0") +
+          "-" +
+          String(d.getDate()).padStart(2, "0")
+        );
+      };
+      const uid = () => Math.random().toString(36).slice(2, 9);
+      const C = window.CLINIC_CONFIG,
+        sb = supabase.createClient(C.url, C.anonKey);
+      const S = {
+        items: [],
+        months: {},
+        cfg: { custs: [], svcs: [], pin: "", plog: [] },
+        admin: false,
+        low: false,
+        day: iso(),
+        view: "pos",
+        rep: iso().slice(0, 7),
+      };
+      const KIND = { r: "قطاعي", w: "جملة" };
+      const ent = (d) => (S.months[d.slice(0, 7)] || {})[d] || [];
+      const item = (id) => S.items.find((x) => x.id === id);
+      const norm = (s) =>
+        String(s ?? "")
+          .trim()
+          .replace(/[أإآ]/g, "ا")
+          .replace(/ة/g, "ه")
+          .replace(/ى/g, "ي")
+          .replace(/\s+/g, " ")
+          .toLowerCase();
+      const catOf = (n) => {
+        const x = norm(n);
+        if (/لحم|لحوم|بقري|ضاني|كندوز|جاموس/.test(x)) return "لحوم";
+        if (/فراخ|دجاج|طيور/.test(x)) return "فراخ";
+        if (/سمك|اسماك|جمبري/.test(x)) return "أسماك";
+        return String(n).trim();
+      };
+      const num = (v) => {
+        if (typeof v === "number") return v;
+        const t = String(v ?? "")
+          .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+          .replace(/[,٬\s]/g, "")
+          .replace("٫", ".");
+        return parseFloat(t) || 0;
+      };
+      const NOCAT = "بدون تصنيف",
+        CATORD = ["لحوم", "فراخ", "أسماك"];
+      const minOf = (x) => (x.min == null || x.min === "" ? 5 : +x.min);
+      const lowItems = () => S.items.filter((x) => x.stock <= minOf(x));
+      const pinSet = () => !!S.cfg.pin,
+        isAdmin = () => !pinSet() || S.admin;
+      const r2 = (n) => Math.round(n * 100) / 100;
+      const catList = () =>
+        [...new Set(S.items.map((x) => x.cat || NOCAT))].sort((a, b) => {
+          const i = CATORD.indexOf(a),
+            j = CATORD.indexOf(b);
+          return (i < 0 ? 9 : i) - (j < 0 ? 9 : j) || a.localeCompare(b, "ar");
+        });
+      const custList = () => [
+        ...new Set([...(S.cfg.custs || []), ...debts().map((d) => d[0])]),
+      ];
+      async function hash(t) {
+        const x = "alq:" + t;
+        if (window.crypto && crypto.subtle) {
+          const b = await crypto.subtle.digest(
+            "SHA-256",
+            new TextEncoder().encode(x),
+          );
+          return [...new Uint8Array(b)]
+            .map((v) => v.toString(16).padStart(2, "0"))
+            .join("");
+        }
+        let h = 5381;
+        for (const c of x) h = ((h * 33) ^ c.charCodeAt(0)) >>> 0;
+        return "f" + h;
+      }
+      function toast(m, ms = 3500) {
+        let t = $("#toast");
+        if (!t) {
+          t = document.createElement("div");
+          t.id = "toast";
+          t.className = "toast";
+          document.body.append(t);
+        }
+        t.textContent = m;
+        t.hidden = false;
+        clearTimeout(toast.t);
+        toast.t = setTimeout(() => (t.hidden = true), ms);
+      }
+      function alertBar() {
+        const L = lowItems();
+        if (!L.length) return "";
+        const z = L.filter((x) => x.stock <= 0),
+          l = L.filter((x) => x.stock > 0);
+        const nm = (a) =>
+          a
+            .slice(0, 6)
+            .map((x) => esc(x.name))
+            .join("، ") + (a.length > 6 ? " …" : "");
+        return `<div class="alert">⚠ ${z.length ? `<b>${z.length} صنف خلص:</b> ${nm(z)}` : ""}${z.length && l.length ? " — " : ""}${l.length ? `<b>${l.length} صنف قرب يخلص:</b> ${nm(l)}` : ""} ${isAdmin() ? '<button class="b" id="lowgo">عرض الناقص</button>' : ""}</div>`;
+      }
+      function itemOpts(sel, stockTxt = true) {
+        const g = {};
+        for (const x of S.items) (g[x.cat || NOCAT] ??= []).push(x);
+        return Object.keys(g)
+          .sort((a, b) => a.localeCompare(b, "ar"))
+          .map(
+            (c) =>
+              `<optgroup label="${esc(c)}">${g[c]
+                .sort((a, b) => a.name.localeCompare(b.name, "ar"))
+                .map(
+                  (x) =>
+                    `<option value="${x.id}" ${x.id === sel ? "selected" : ""}>${esc(x.name)}${stockTxt ? ` (${x.stock} ${esc(x.unit)})` : ""}</option>`,
+                )
+                .join("")}</optgroup>`,
+          )
+          .join("");
+      }
+
+      /* ---------- data ---------- */
+      async function load() {
+        const { data, error } = await sb.from("docs").select("path,data");
+        if (error) {
+          alert("مشكلة في الاتصال: " + error.message);
+          return;
+        }
+        S.items = [];
+        S.months = {};
+        S.cfg = { custs: [], svcs: [], pin: "", plog: [] };
+        for (const r of data) {
+          if (r.path === "items/main") S.items = r.data.list || [];
+          else if (r.path === "cfg/main") S.cfg = { ...S.cfg, ...r.data };
+          else if (r.path.startsWith("months/"))
+            S.months[r.path.slice(7)] = r.data.days || {};
+        }
+      }
+      const saveItems = () =>
+        sb
+          .from("docs")
+          .upsert({
+            path: "items/main",
+            data: { list: S.items },
+            updated_at: new Date().toISOString(),
+          })
+          .then((r) => {
+            if (r.error) alert(r.error.message);
+            return !r.error;
+          });
+      const saveCfg = () =>
+        sb
+          .from("docs")
+          .upsert({
+            path: "cfg/main",
+            data: S.cfg,
+            updated_at: new Date().toISOString(),
+          })
+          .then((r) => {
+            if (r.error) alert(r.error.message);
+            return !r.error;
+          });
+      const saveDay = (d) =>
+        sb
+          .rpc("set_day", {
+            p_month: d.slice(0, 7),
+            p_day: d,
+            p_entries: ent(d),
+          })
+          .then((r) => {
+            if (r.error) alert(r.error.message);
+          });
+      function stock(e, sg) {
+        if (e.t === "sale")
+          for (const l of e.lines) {
+            const it = item(l.i);
+            if (it) it.stock = +(it.stock - sg * l.q).toFixed(3);
+          }
+        if (e.t === "adj") {
+          const it = item(e.i);
+          if (it) it.stock = +(it.stock + sg * e.q).toFixed(3);
+        }
+        if (e.t === "buy")
+          for (const l of e.lines) {
+            const it = item(l.i);
+            if (it) {
+              it.stock = +(it.stock + sg * l.q).toFixed(3);
+              if (sg > 0) it.cost = l.c;
+            }
+          }
+      }
+      async function addEntry(e, quiet) {
+        const m = S.day.slice(0, 7);
+        ((S.months[m] ??= {})[S.day] ??= []).push(e);
+        stock(e, 1);
+        await saveDay(S.day);
+        if (e.t === "sale" || e.t === "buy" || e.t === "adj") await saveItems();
+        if (!quiet) render();
+      }
+      async function delEntry(id) {
+        if (!confirm("تمسح الحركة دي؟ (المخزون هيرجع زي ما كان)")) return;
+        const m = S.day.slice(0, 7),
+          a = S.months[m][S.day],
+          i = a.findIndex((x) => x.id === id);
+        if (i < 0) return;
+        const e = a.splice(i, 1)[0];
+        stock(e, -1);
+        await saveDay(S.day);
+        if (e.t === "sale" || e.t === "buy" || e.t === "adj") await saveItems();
+        render();
+      }
+
+      /* ---------- calculations ---------- */
+      function stats(es) {
+        const s = {
+          r: 0,
+          w: 0,
+          svc: 0,
+          exp: 0,
+          buy: 0,
+          cashIn: 0,
+          cashOut: 0,
+          profit: 0,
+          n: es.length,
+        };
+        for (const e of es) {
+          if (e.t === "sale") {
+            s[e.k] += e.total;
+            s.cashIn += e.paid;
+            s.profit += e.lines.reduce(
+              (a, l) => a + (l.p - (l.c || 0)) * l.q,
+              0,
+            );
+          } else if (e.t === "svc") {
+            s.svc += e.total;
+            s.cashIn += e.paid;
+            s.profit += e.total;
+          } else if (e.t === "pay") s.cashIn += e.amt;
+          else if (e.t === "buy") {
+            s.buy += e.total;
+            s.cashOut += e.paid;
+          } else if (e.t === "exp") {
+            s.exp += e.amt;
+            s.cashOut += e.amt;
+            s.profit -= e.amt;
+          }
+        }
+        return s;
+      }
+      const monthEs = (m) => Object.values(S.months[m] || {}).flat();
+      function debts() {
+        const m = {};
+        for (const mo of Object.values(S.months))
+          for (const es of Object.values(mo))
+            for (const e of es) {
+              const c = (e.cust || "").trim();
+              if (!c) continue;
+              if (e.t === "sale" || e.t === "svc")
+                m[c] = (m[c] || 0) + e.total - e.paid;
+              else if (e.t === "pay") m[c] = (m[c] || 0) - e.amt;
+            }
+        return Object.entries(m)
+          .filter(([, v]) => Math.abs(v) > 0.009)
+          .sort((a, b) => b[1] - a[1]);
+      }
+      const custNames = () => {
+        const s = new Set();
+        for (const mo of Object.values(S.months))
+          for (const es of Object.values(mo))
+            for (const e of es) if (e.cust) s.add(e.cust.trim());
+        return [...s].map((x) => `<option value="${esc(x)}">`).join("");
+      };
+      function desc(e) {
+        if (e.t === "sale")
+          return `<span class="tag ${e.k === "w" ? "w" : ""}">${KIND[e.k]}</span> ${esc(e.cust || "نقدي")} — ${e.lines.map((l) => esc(l.n) + " " + l.q + " " + esc(l.u || "")).join("، ")}`;
+        if (e.t === "svc")
+          return `<span class="tag s">فرم/تقطيع</span> ${esc(e.cust || "نقدي")} — ${esc(e.what)} ${e.kg} كجم × ${f(e.rate)}`;
+        if (e.t === "buy")
+          return `<span class="tag x">شراء</span> ${esc(e.sup || "مورد")} — ${e.lines.map((l) => esc(l.n) + " " + l.q).join("، ")}`;
+        if (e.t === "exp")
+          return `<span class="tag x">مصروف</span> ${esc(e.what)}`;
+        if (e.t === "pay")
+          return `<span class="tag s">سداد</span> ${esc(e.cust)}`;
+        if (e.t === "adj")
+          return `<span class="tag x">تعديل مخزون</span> ${esc(e.n)} <b class="${e.q > 0 ? "in" : "out"}">${e.q > 0 ? "+" : ""}${f(e.q)} ${esc(e.u || "")}</b> — ${esc(e.why || "")}`;
+        return "";
+      }
+      const amount = (e) =>
+        e.t === "adj" ? null : e.t === "exp" || e.t === "pay" ? e.amt : e.total;
+
+      /* ---------- modal ---------- */
+      function modal(title, body, ok) {
+        const d = document.createElement("div");
+        d.id = "modal";
+        d.innerHTML = `<div class="box"><h3>${title}</h3><div id="mb">${body}</div><div class="row"><button class="b pri" id="ok">حفظ</button><button class="b" id="no">إلغاء</button></div></div>`;
+        document.body.append(d);
+        d.querySelector("#no").onclick = () => {
+          d.remove();
+          render();
+        };
+        d.querySelector("#ok").onclick = async () => {
+          const r = await ok(d);
+          if (r !== false) {
+            d.remove();
+            render();
+          }
+        };
+        return d;
+      }
+      const V = (d, id) => d.querySelector("#" + id).value;
+      function fields(title, fs, ok) {
+        const d = modal(
+          title,
+          fs
+            .map((x) =>
+              x.opts
+                ? `<label>${x.l}<select id="${x.id}">${x.opts.map(([v, l]) => `<option value="${esc(v)}">${esc(l)}</option>`).join("")}</select></label>`
+                : `<label>${x.l}<input id="${x.id}" type="${x.t || "text"}" ${x.t === "number" ? 'step="any"' : ""} value="${esc(x.v ?? "")}" ${x.list ? `list="${x.list}"` : ""}></label>`,
+            )
+            .join("") +
+            `<datalist id="cl">${custNames()}</datalist><datalist id="cats"><option value="لحوم"><option value="فراخ"><option value="أسماك"></datalist>`,
+          ok,
+        );
+        return d;
+      }
+
+      /* ---------- forms ---------- */
+      function buyForm() {
+        let L = [{ i: "", q: 1, c: 0 }];
+        const d = modal(
+          "شراء بضاعة من مورد (بيزوّد المخزون)",
+          `<label>المورد<input id="su"></label><div id="ls"></div><button type="button" class="b" id="al">+ صنف</button>
+  <div class="tot">الإجمالي <b id="tt">0</b></div><label>المدفوع<input id="pd" type="number" step="any"></label>`,
+          async () => {
+            const ls = L.filter((l) => l.i && l.q > 0);
+            if (!ls.length) {
+              alert("اختار صنف وكمية");
+              return false;
+            }
+            const lines = ls.map((l) => ({
+                i: l.i,
+                n: item(l.i).name,
+                u: item(l.i).unit,
+                q: l.q,
+                c: l.c,
+              })),
+              total = lines.reduce((a, l) => a + l.q * l.c, 0);
+            await addEntry({
+              id: uid(),
+              t: "buy",
+              sup: V(d, "su"),
+              lines,
+              total,
+              paid: Math.min(+V(d, "pd") || 0, total),
+            });
+          },
+        );
+        let man = false;
+        const sum = () => {
+          const t = L.reduce((a, l) => a + l.q * l.c, 0);
+          d.querySelector("#tt").textContent = f(t);
+          if (!man) d.querySelector("#pd").value = t;
+        };
+        const draw = () => {
+          d.querySelector("#ls").innerHTML = L.map(
+            (l, n) =>
+              `<div class="ln"><select data-n="${n}" data-f="i"><option value="">— صنف —</option>${itemOpts(l.i, false)}</select><input data-n="${n}" data-f="q" type="number" step="any" value="${l.q}" title="الكمية"><input data-n="${n}" data-f="c" type="number" step="any" value="${l.c}" title="سعر الشراء"><button type="button" class="b red" data-x="${n}">✕</button></div>`,
+          ).join("");
+          sum();
+        };
+        d.addEventListener("change", (ev) => {
+          const t = ev.target;
+          if (t.dataset.f === "i") {
+            const l = L[+t.dataset.n];
+            l.i = t.value;
+            l.c = item(l.i)?.cost || 0;
+            draw();
+          }
+        });
+        d.addEventListener("input", (ev) => {
+          const t = ev.target;
+          if (t.id === "pd") {
+            man = true;
+            return;
+          }
+          if (t.dataset.f && t.dataset.f !== "i") {
+            L[+t.dataset.n][t.dataset.f] = +t.value || 0;
+            sum();
+          }
+        });
+        d.addEventListener("click", (ev) => {
+          const b = ev.target.closest("button");
+          if (!b) return;
+          if (b.id === "al") {
+            L.push({ i: "", q: 1, c: 0 });
+            draw();
+          } else if (b.dataset.x != null) {
+            L.splice(+b.dataset.x, 1);
+            if (!L.length) L.push({ i: "", q: 1, c: 0 });
+            draw();
+          }
+        });
+        draw();
+      }
+      const expForm = () => {
+        const d = fields(
+          "مصروف",
+          [
+            { id: "wh", l: "البيان (كهربا، إيجار، عمالة، …)" },
+            { id: "am", l: "المبلغ", t: "number" },
+          ],
+          async () => {
+            const a = +V(d, "am");
+            if (!V(d, "wh") || !(a > 0)) {
+              alert("اكتب البيان والمبلغ");
+              return false;
+            }
+            await addEntry({ id: uid(), t: "exp", what: V(d, "wh"), amt: a });
+          },
+        );
+      };
+      const payForm = (c = "", a = "") => {
+        const d = fields(
+          "سداد من عميل",
+          [
+            { id: "cu", l: "العميل", v: c, list: "cl" },
+            { id: "am", l: "المبلغ", t: "number", v: a },
+          ],
+          async () => {
+            const x = +V(d, "am");
+            if (!V(d, "cu").trim() || !(x > 0)) {
+              alert("اكتب العميل والمبلغ");
+              return false;
+            }
+            await addEntry({
+              id: uid(),
+              t: "pay",
+              cust: V(d, "cu").trim(),
+              amt: x,
+            });
+          },
+        );
+      };
+
+      function priceForm() {
+        const cats = catList();
+        const d = fields(
+          "تغيير الأسعار",
+          [
+            {
+              id: "sc",
+              l: "على أنهي أصناف؟",
+              opts: [
+                ["", "كل الأصناف"],
+                ...cats.map((c) => [c, "قسم: " + c]),
+                ...S.items
+                  .slice()
+                  .sort((a, b) => a.name.localeCompare(b.name, "ar"))
+                  .map((x) => ["i:" + x.id, "صنف: " + x.name]),
+              ],
+            },
+            {
+              id: "wh",
+              l: "أنهي سعر؟",
+              opts: [
+                ["both", "القطاعي والجملة"],
+                ["rp", "القطاعي فقط"],
+                ["wp", "الجملة فقط"],
+                ["cost", "سعر الشراء (التكلفة) فقط"],
+                ["all", "الكل (قطاعي + جملة + شراء)"],
+              ],
+            },
+            {
+              id: "md",
+              l: "نوع التغيير",
+              opts: [
+                ["pct", "نسبة %"],
+                ["amt", "مبلغ ثابت"],
+              ],
+            },
+            { id: "vl", l: "القيمة (موجب = زيادة، سالب = تخفيض)", t: "number" },
+          ],
+          async () => {
+            const sc = V(d, "sc"),
+              wh = V(d, "wh"),
+              md = V(d, "md"),
+              v = +V(d, "vl");
+            if (!v) {
+              alert("اكتب القيمة");
+              return false;
+            }
+            const T = S.items.filter(
+              (x) =>
+                sc === "" ||
+                (sc.startsWith("i:")
+                  ? x.id === sc.slice(2)
+                  : (x.cat || NOCAT) === sc),
+            );
+            const ks =
+              wh === "both"
+                ? ["rp", "wp"]
+                : wh === "all"
+                  ? ["rp", "wp", "cost"]
+                  : [wh];
+            if (!T.length) {
+              alert("مفيش أصناف مطابقة");
+              return false;
+            }
+            const lbl = d.querySelector("#sc").selectedOptions[0].textContent,
+              tx = `${md === "pct" ? v + "%" : v + " جنيه"}`;
+            if (
+              !confirm(
+                `هيتغير السعر (${tx}) على ${T.length} صنف — ${lbl}.\nالأسعار المتسجلة صفر مش هتتغير، والفواتير القديمة مش هتتأثر. تكمّل؟`,
+              )
+            )
+              return false;
+            for (const x of T)
+              for (const k of ks)
+                if (x[k] > 0)
+                  x[k] = Math.max(
+                    0,
+                    r2(md === "pct" ? x[k] * (1 + v / 100) : x[k] + v),
+                  );
+            (S.cfg.plog ??= []).unshift({
+              d: iso(),
+              t: `${lbl} — ${{ both: "قطاعي وجملة", rp: "قطاعي", wp: "جملة", cost: "شراء", all: "الكل" }[wh]} — ${tx}`,
+            });
+            S.cfg.plog = S.cfg.plog.slice(0, 30);
+            await saveItems();
+            await saveCfg();
+            toast("تم تغيير الأسعار");
+          },
+        );
+      }
+
+      function stockForm(it0) {
+        const L = S.items
+          .slice()
+          .sort(
+            (a, b) =>
+              (a.cat || "").localeCompare(b.cat || "", "ar") ||
+              a.name.localeCompare(b.name, "ar"),
+          );
+        if (!L.length) {
+          alert("ضيف أصناف الأول");
+          return;
+        }
+        const d = fields(
+          "📦 تعديل المخزون",
+          [
+            {
+              id: "it",
+              l: "الصنف",
+              opts: L.map((x) => [
+                x.id,
+                `${x.cat || NOCAT} — ${x.name}  (الرصيد الحالي: ${f(x.stock)} ${x.unit})`,
+              ]),
+            },
+            {
+              id: "md",
+              l: "نوع التعديل",
+              opts: [
+                ["add", "➕ زيادة — وصلت كمية جديدة"],
+                ["sub", "➖ نقص — تالف / فاقد / استهلاك"],
+                ["set", "📋 ضبط الرصيد على رقم الجرد الفعلي"],
+              ],
+            },
+            { id: "q", l: "الكمية (أو رقم الجرد لو اخترت الضبط)", t: "number" },
+            {
+              id: "nc",
+              l: "سعر الشراء الجديد للوحدة (اختياري — بيحدّث تكلفة الصنف في حالة الزيادة)",
+              t: "number",
+            },
+            { id: "wy", l: "ملاحظة (اختياري)" },
+          ],
+          async () => {
+            const x = item(V(d, "it")),
+              md = V(d, "md"),
+              raw = V(d, "q"),
+              q = +raw;
+            if (!x) {
+              alert("اختار الصنف");
+              return false;
+            }
+            if (raw === "" || isNaN(q) || q < 0) {
+              alert("اكتب الكمية");
+              return false;
+            }
+            if (md !== "set" && !(q > 0)) {
+              alert("اكتب كمية أكبر من صفر");
+              return false;
+            }
+            const delta =
+              md === "add" ? q : md === "sub" ? -q : +(q - x.stock).toFixed(3);
+            if (!delta) {
+              alert("الرصيد زي ما هو، مفيش تعديل");
+              return false;
+            }
+            if (
+              md === "sub" &&
+              q > x.stock &&
+              !confirm(
+                "الكمية أكبر من الرصيد الحالي، الرصيد هيبقى بالسالب. تكمّل؟",
+              )
+            )
+              return false;
+            const nc = +V(d, "nc");
+            if (md === "add" && nc > 0) x.cost = nc;
+            S.day = iso();
+            await addEntry(
+              {
+                id: uid(),
+                t: "adj",
+                i: x.id,
+                n: x.name,
+                u: x.unit,
+                q: delta,
+                why:
+                  V(d, "wy").trim() ||
+                  { add: "وارد جديد", sub: "نقص / تالف", set: "ضبط بالجرد" }[
+                    md
+                  ],
+              },
+              true,
+            );
+            toast(`${x.name}: الرصيد بقى ${f(x.stock)} ${x.unit}`);
+          },
+        );
+        if (it0) d.querySelector("#it").value = it0.id;
+      }
+      function itemForm(it) {
+        const n = it || {
+          id: uid(),
+          name: "",
+          cat: "",
+          unit: "كجم",
+          cost: 0,
+          rp: 0,
+          wp: 0,
+          stock: 0,
+        };
+        const d = fields(
+          it ? "تعديل صنف" : "صنف جديد",
+          [
+            {
+              id: "ct",
+              l: "الكاتيجوري (لحوم / فراخ / أسماك)",
+              v: n.cat,
+              list: "cats",
+            },
+            { id: "nm", l: "اسم الصنف", v: n.name },
+            { id: "un", l: "الوحدة (كجم / قطعة / كرتونة)", v: n.unit },
+            {
+              id: "cn",
+              l: "محتوى الكرتونة (بنفس وحدة الصنف — سيبه فاضي لو مفيش كرتونة)",
+              t: "number",
+              v: n.ctn || "",
+            },
+            {
+              id: "mn",
+              l: "حد التنبيه (نبّهني لما الرصيد يوصل له)",
+              t: "number",
+              v: n.min ?? 5,
+            },
+            { id: "co", l: "سعر الشراء (التكلفة)", t: "number", v: n.cost },
+            { id: "rp", l: "سعر القطاعي", t: "number", v: n.rp },
+            { id: "wp", l: "سعر الجملة", t: "number", v: n.wp },
+            { id: "st", l: "الرصيد الحالي في المخزن", t: "number", v: n.stock },
+          ],
+          async () => {
+            if (!V(d, "nm").trim()) {
+              alert("اكتب اسم الصنف");
+              return false;
+            }
+            Object.assign(n, {
+              cat: V(d, "ct").trim(),
+              name: V(d, "nm").trim(),
+              unit: V(d, "un").trim() || "كجم",
+              cost: +V(d, "co") || 0,
+              ctn: +V(d, "cn") || 0,
+              min: V(d, "mn") === "" ? 5 : +V(d, "mn"),
+              rp: +V(d, "rp") || 0,
+              wp: +V(d, "wp") || 0,
+              stock: +V(d, "st") || 0,
+            });
+            if (!it) S.items.push(n);
+            await saveItems();
+            render();
+          },
+        );
+      }
+
+      /* ---------- Excel import ---------- */
+      const HDR = [
+        ["name", /^(اسم )?(الصنف|المنتج|الاسم|صنف|منتج|البيان)|^اسم/],
+        ["wp", /جمل/],
+        ["rp", /قطاع|تجزئ|بيع/],
+        ["cost", /شراء|تكلف/],
+        ["unit", /وحد/],
+        ["stock", /رصيد|كمي|مخزون/],
+        ["ctn", /كرتون/],
+        ["min", /تنبيه|حد ال?ادني/],
+      ];
+      function readSheet(ws, cat) {
+        const A = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "" });
+        const hi = A.findIndex((r) => r.some((c) => String(c).trim() !== ""));
+        if (hi < 0) return { rows: [], cols: {} };
+        const cols = {};
+        A[hi].forEach((h, i) => {
+          const x = norm(h);
+          if (!x) return;
+          for (const [k, re] of HDR)
+            if (cols[k] == null && re.test(x)) {
+              cols[k] = i;
+              break;
+            }
+        });
+        if (cols.name == null) cols.name = 0;
+        const rows = [];
+        for (const r of A.slice(hi + 1)) {
+          const name = String(r[cols.name] ?? "").trim();
+          if (!name) continue;
+          const o = { cat, name };
+          if (cols.unit != null && String(r[cols.unit]).trim())
+            o.unit = String(r[cols.unit]).trim();
+          for (const k of ["wp", "rp", "cost", "stock", "ctn", "min"])
+            if (cols[k] != null && String(r[cols[k]]).trim() !== "")
+              o[k] = num(r[cols[k]]);
+          rows.push(o);
+        }
+        return { rows, cols };
+      }
+      async function importItems(file) {
+        let wb;
+        try {
+          wb = XLSX.read(await file.arrayBuffer(), { type: "array" });
+        } catch (e) {
+          alert("مش قادر أقرا الملف ده");
+          return;
+        }
+        const all = [],
+          lines = [];
+        for (const sn of wb.SheetNames) {
+          const cat = catOf(sn),
+            { rows, cols } = readSheet(wb.Sheets[sn], cat);
+          if (!rows.length) continue;
+          all.push(...rows);
+          const miss = ["wp", "rp"]
+            .filter((k) => cols[k] == null)
+            .map((k) => (k === "wp" ? "سعر الجملة" : "سعر القطاعي"));
+          lines.push(
+            `• شيت "${sn}" ← ${cat}: ${rows.length} صنف${miss.length ? " (⚠ مفيش عمود: " + miss.join("، ") + ")" : ""}`,
+          );
+        }
+        if (!all.length) {
+          alert(
+            "مفيش أصناف في الملف. لازم الصف الأول يبقى عناوين الأعمدة (الصنف، سعر الجملة، سعر القطاعي…)",
+          );
+          return;
+        }
+        if (
+          !confirm(
+            `هيتضاف أو يتحدّث ${all.length} صنف:\n${lines.join("\n")}\n\nالصنف اللي بنفس الاسم والكاتيجوري بيتحدّث سعره، والباقي بيتضاف. تكمّل؟`,
+          )
+        )
+          return;
+        let add = 0,
+          upd = 0;
+        for (const r of all) {
+          const ex = S.items.find(
+            (x) =>
+              norm(x.name) === norm(r.name) &&
+              ((x.cat || "") === r.cat || !x.cat),
+          );
+          if (ex) {
+            const { cat, name, ...rest } = r;
+            Object.assign(ex, rest, { cat });
+            upd++;
+          } else {
+            S.items.push({
+              id: uid(),
+              cat: r.cat,
+              name: r.name,
+              unit: r.unit || "كجم",
+              cost: r.cost || 0,
+              rp: r.rp || 0,
+              wp: r.wp || 0,
+              stock: r.stock || 0,
+              ctn: r.ctn || 0,
+              min: r.min ?? 5,
+            });
+            add++;
+          }
+        }
+        const ok = await saveItems();
+        render();
+        alert(
+          ok
+            ? `تم وحُفظ في قاعدة البيانات: ${add} صنف جديد، ${upd} صنف اتحدّث.`
+            : "⚠ الاستيراد ماتحفظش في قاعدة البيانات. اتأكد من النت وحاول تاني.",
+        );
+      }
+      function itemsTemplate() {
+        const wb = XLSX.utils.book_new(),
+          h = [
+            "الصنف",
+            "الوحدة",
+            "سعر الشراء",
+            "سعر القطاعي",
+            "سعر الجملة",
+            "الرصيد",
+            "وزن الكرتونة",
+            "حد التنبيه",
+          ];
+        for (const n of ["لحوم", "فراخ", "أسماك"])
+          XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([h]), n);
+        XLSX.writeFile(wb, "نموذج-الأصناف.xlsx");
+      }
+      function itemsExport() {
+        const wb = XLSX.utils.book_new(),
+          g = {};
+        for (const x of S.items) (g[x.cat || NOCAT] ??= []).push(x);
+        for (const c of Object.keys(g))
+          XLSX.utils.book_append_sheet(
+            wb,
+            XLSX.utils.json_to_sheet(
+              g[c].map((x) => ({
+                الصنف: x.name,
+                الوحدة: x.unit,
+                "سعر الشراء": x.cost,
+                "سعر القطاعي": x.rp,
+                "سعر الجملة": x.wp,
+                الرصيد: x.stock,
+                "وزن الكرتونة": x.ctn || "",
+                "حد التنبيه": minOf(x),
+              })),
+            ),
+            c.slice(0, 31),
+          );
+        XLSX.writeFile(wb, "الأصناف-" + iso() + ".xlsx");
+      }
+
+      /* ---------- cashier (all choices, no typing) ---------- */
+      const P = {
+        mode: "sale",
+        k: "r",
+        cat: "",
+        sel: null,
+        cart: [],
+        scart: [],
+        ssel: null,
+        cust: "",
+        pay: "full",
+      };
+      const priceOf = (it, k) => (k === "w" ? it.wp : it.rp);
+      function qtyBtns(it) {
+        const kg = it.unit === "كجم";
+        const base = kg
+          ? [
+              [0.25, "ربع كيلو"],
+              [0.5, "نص كيلو"],
+              [1, "1 كيلو"],
+              [1.5, "1.5 كيلو"],
+              [2, "2 كيلو"],
+              [3, "3 كيلو"],
+              [5, "5 كيلو"],
+              [10, "10 كيلو"],
+            ]
+          : [1, 2, 3, 4, 5, 6, 10, 12].map((n) => [n, n + " " + it.unit]);
+        const ct =
+          +it.ctn > 0
+            ? [1, 2, 3].map((n) => [
+                n * it.ctn,
+                `${n} ${n === 1 ? "كرتونة" : "كراتين"} (${f(n * it.ctn)} ${it.unit})`,
+              ])
+            : [];
+        return { base, ct };
+      }
+      function addLine(it, q, lbl) {
+        if (!(q > 0)) {
+          toast("اختار كمية");
+          return;
+        }
+        const p = priceOf(it, P.k);
+        if (!(p > 0)) {
+          toast("السعر مش متسجل للصنف ده — بلّغ المدير");
+          return;
+        }
+        P.cart.push({
+          i: it.id,
+          n: it.name,
+          u: it.unit,
+          q: +q,
+          p,
+          c: it.cost || 0,
+          lbl,
+        });
+        P.sel = null;
+        render();
+      }
+      function posView() {
+        const sale = P.mode === "sale",
+          it = P.sel ? item(P.sel) : null,
+          cart = sale ? P.cart : P.scart;
+        const total = r2(
+            cart.reduce((a, l) => a + (sale ? l.q * l.p : l.total), 0),
+          ),
+          custs = custList();
+        const kgBtns = [0.5, 1, 2, 3, 5, 10, 15, 20];
+        let L = `<div class="seg"><button class="big ${sale ? "on" : ""}" data-pm="sale">🛒 بيع</button><button class="big ${sale ? "" : "on"}" data-pm="svc">🔪 فرم وتقطيع</button></div>`;
+        if (sale) {
+          L += `<div class="seg" style="margin-top:8px"><button class="big ${P.k === "r" ? "on" : ""}" data-pk="r">قطاعي</button><button class="big ${P.k === "w" ? "on" : ""}" data-pk="w">جملة</button></div><h4>١) اختار القسم</h4><div class="grid">${
+            catList()
+              .map(
+                (c) =>
+                  `<button class="big ${P.cat === c ? "on" : ""}" data-pc="${esc(c)}">${esc(c)}</button>`,
+              )
+              .join("") ||
+            '<div class="empty">مفيش أصناف — المدير يضيفها من تبويب الأصناف</div>'
+          }</div>`;
+          if (P.cat)
+            L += `<h4>٢) اختار الصنف</h4><div class="grid">${S.items
+              .filter((x) => (x.cat || NOCAT) === P.cat)
+              .sort((a, b) => a.name.localeCompare(b.name, "ar"))
+              .map((x) => {
+                const p = priceOf(x, P.k);
+                return `<button class="tile ${x.stock <= minOf(x) ? "low" : ""} ${P.sel === x.id ? "on" : ""}" data-pi="${x.id}">${esc(x.name)}<small>${p > 0 ? f(p) + " / " + esc(x.unit) : "بدون سعر"}</small><small>${x.stock <= 0 ? "خلص" : "متاح " + f(x.stock)}</small></button>`;
+              })
+              .join("")}</div>`;
+          if (it) {
+            const Q = qtyBtns(it);
+            L += `<h4>٣) اختار الكمية — ${esc(it.name)}</h4><div class="grid">${Q.base.map(([q, l]) => `<button class="big" data-q="${q}">${l}</button>`).join("")}${Q.ct.map(([q, l]) => `<button class="big" data-q="${q}">${l}</button>`).join("")}</div><div class="row"><input id="mq" type="number" step="any" placeholder="أو اكتب ${it.unit === "كجم" ? "الوزن بالكيلو" : "العدد"} بنفسك" style="max-width:240px"><button class="b pri" id="mqa">إضافة</button></div>`;
+          }
+        } else {
+          L += `<h4>١) اختار نوع الخدمة</h4><div class="grid">${(S.cfg.svcs || []).map((s) => `<button class="tile ${P.ssel === s.id ? "on" : ""}" data-sv="${s.id}">${esc(s.name)}<small>${f(s.rate)} / كجم</small></button>`).join("") || '<div class="empty">المدير يضيف أنواع الخدمات من تبويب العملاء والخدمات</div>'}</div>`;
+          if (P.ssel)
+            L += `<h4>٢) اختار وزن بضاعة العميل</h4><div class="grid">${kgBtns.map((q) => `<button class="big" data-sq="${q}">${q} كيلو</button>`).join("")}</div><div class="row"><input id="mq" type="number" step="any" placeholder="أو اكتب الوزن بالكيلو بنفسك" style="max-width:240px"><button class="b pri" id="msa">إضافة</button></div>`;
+        }
+        const rows = cart
+          .map(
+            (l, n) =>
+              `<tr><td>${esc(sale ? l.n : l.what)}<br><small>${esc(sale ? l.lbl || l.q + " " + l.u : l.kg + " كجم × " + f(l.rate))}</small></td><td class="n">${f(sale ? l.q * l.p : l.total)}</td><td><button class="b red" data-rm="${n}">✕</button></td></tr>`,
+          )
+          .join("");
+        const frac = P.pay === "full" ? 1 : P.pay === "none" ? 0 : +P.pay,
+          paid = r2(total * frac);
+        const R = `<h3 style="margin:0 0 6px">الفاتورة</h3>${cart.length ? `<table><tbody>${rows}</tbody></table>` : '<div class="empty">اختار أصناف عشان تتضاف هنا</div>'}<div class="tot">الإجمالي <b>${f(total)}</b></div>
+    <label>العميل<select id="pcu"><option value="">نقدي (من غير اسم)</option>${custs.map((c) => `<option value="${esc(c)}" ${P.cust === c ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+    <div class="grid" style="grid-template-columns:repeat(2,1fr)">${[
+      ["full", "✅ دفع كامل"],
+      ["none", "🕒 آجل كامل"],
+      ["0.25", "مدفوع ¼"],
+      ["0.5", "مدفوع ½"],
+      ["0.75", "مدفوع ¾"],
+    ]
+      .map(
+        ([v, l]) =>
+          `<button class="big ${String(P.pay) === v ? "on" : ""}" data-pp="${v}">${l}</button>`,
+      )
+      .join("")}</div>
+  <div class="tot" style="font-size:15px">المدفوع <b>${f(paid)}</b> — الباقي <b class="${total - paid > 0 ? "gold" : ""}">${f(total - paid)}</b></div>
+  <button class="big on" id="pcf" style="width:100%">تأكيد الفاتورة</button><div class="row"><button class="b" id="pclr">مسح الفاتورة</button></div>`;
+        $("#main").innerHTML =
+          `<div class="pos"><div class="sheet">${L}</div><div class="sheet">${R}</div></div>`;
+        const M = $("#main"),
+          all = (q) => M.querySelectorAll(q);
+        all("[data-pm]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              P.mode = b.dataset.pm;
+              P.pay = "full";
+              render();
+            }),
+        );
+        all("[data-pk]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              P.k = b.dataset.pk;
+              P.cart.forEach((l) => {
+                const x = item(l.i);
+                if (x && priceOf(x, P.k) > 0) l.p = priceOf(x, P.k);
+              });
+              render();
+            }),
+        );
+        all("[data-pc]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              P.cat = b.dataset.pc;
+              P.sel = null;
+              render();
+            }),
+        );
+        all("[data-pi]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              P.sel = b.dataset.pi;
+              render();
+            }),
+        );
+        all("[data-q]").forEach(
+          (b) => (b.onclick = () => addLine(it, +b.dataset.q, b.textContent)),
+        );
+        if ($("#mqa"))
+          $("#mqa").onclick = () => {
+            const q = +$("#mq").value;
+            addLine(it, q, q + " " + it.unit);
+          };
+        all("[data-sv]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              P.ssel = b.dataset.sv;
+              render();
+            }),
+        );
+        const addSvc = (q) => {
+          const s = (S.cfg.svcs || []).find((x) => x.id === P.ssel);
+          if (!s || !(q > 0)) {
+            toast("اختار الوزن");
+            return;
+          }
+          P.scart.push({
+            what: s.name,
+            kg: +q,
+            rate: +s.rate,
+            total: r2(q * s.rate),
+          });
+          P.ssel = null;
+          render();
+        };
+        all("[data-sq]").forEach(
+          (b) => (b.onclick = () => addSvc(+b.dataset.sq)),
+        );
+        if ($("#msa")) $("#msa").onclick = () => addSvc(+$("#mq").value);
+        all("[data-rm]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              cart.splice(+b.dataset.rm, 1);
+              render();
+            }),
+        );
+        $("#pcu").onchange = (e) => {
+          P.cust = e.target.value;
+        };
+        all("[data-pp]").forEach(
+          (b) =>
+            (b.onclick = () => {
+              P.pay = b.dataset.pp;
+              render();
+            }),
+        );
+        $("#pcf").onclick = confirmPos;
+        $("#pclr").onclick = () => {
+          cart.length = 0;
+          P.pay = "full";
+          render();
+        };
+      }
+      async function confirmPos() {
+        const sale = P.mode === "sale",
+          cart = sale ? P.cart : P.scart;
+        if (!cart.length) {
+          toast("الفاتورة فاضية");
+          return;
+        }
+        const total = r2(
+            cart.reduce((a, l) => a + (sale ? l.q * l.p : l.total), 0),
+          ),
+          frac = P.pay === "full" ? 1 : P.pay === "none" ? 0 : +P.pay,
+          paid = r2(total * frac),
+          cust = P.cust;
+        if (paid < total - 0.009 && !cust) {
+          toast("اختار العميل الأول عشان الباقي يتسجل عليه آجل");
+          return;
+        }
+        S.day = iso();
+        let low = [];
+        if (sale) {
+          await addEntry(
+            {
+              id: uid(),
+              t: "sale",
+              k: P.k,
+              cust,
+              lines: cart.map(({ i, n, u, q, p, c }) => ({ i, n, u, q, p, c })),
+              total,
+              paid,
+            },
+            true,
+          );
+          low = [...new Set(cart.map((l) => l.i))]
+            .map(item)
+            .filter((x) => x && x.stock <= minOf(x));
+        } else {
+          let rest = paid;
+          for (const l of cart) {
+            const x = Math.min(rest, l.total);
+            rest -= x;
+            await addEntry(
+              {
+                id: uid(),
+                t: "svc",
+                cust,
+                what: l.what,
+                kg: l.kg,
+                rate: l.rate,
+                total: l.total,
+                paid: x,
+              },
+              true,
+            );
+          }
+        }
+        cart.length = 0;
+        P.pay = "full";
+        P.sel = null;
+        P.ssel = null;
+        render();
+        toast(
+          low.length
+            ? "⚠ " +
+                low
+                  .map((x) =>
+                    x.stock <= 0
+                      ? x.name + " خلص"
+                      : x.name +
+                        " قرب يخلص (متبقي " +
+                        f(x.stock) +
+                        " " +
+                        x.unit +
+                        ")",
+                  )
+                  .join(" — ")
+            : "✔ تم تسجيل الفاتورة",
+          low.length ? 7000 : 2500,
+        );
+      }
+      function setupView() {
+        const c = S.cfg;
+        $("#main").innerHTML =
+          `<div class="sheet"><b>العملاء</b> <span style="color:var(--ink2)">(الكاشير بيختارهم من قايمة)</span><div class="row"><button class="b pri" id="ac">+ عميل جديد</button></div>${(c.custs || []).length ? `<div class="row">${c.custs.map((n, i) => `<span class="tag">${esc(n)} <button class="b red" style="padding:0 6px" data-rc="${i}">✕</button></span>`).join("")}</div>` : '<div class="empty">مفيش عملاء متسجلين</div>'}</div>
+  <div class="sheet"><b>أنواع الفرم والتقطيع وسعر الكيلو</b><div class="row"><button class="b pri" id="as">+ نوع خدمة</button></div>${(c.svcs || []).length ? `<table><tbody>${c.svcs.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${f(s.rate)} / كجم</td><td><button class="b" data-es="${s.id}">تعديل</button> <button class="b red" data-rs="${s.id}">حذف</button></td></tr>`).join("")}</tbody></table>` : '<div class="empty">ضيف الخدمات (فرم لحمة، تقطيع فراخ…)</div>'}</div>
+  <div class="sheet"><b>رقم المدير السري</b><p style="color:var(--ink2);margin:6px 0">${pinSet() ? "متفعّل: البرنامج بيفتح على شاشة الكاشير، والمدير بس هو اللي بيدخل على الباقي بالرقم." : "لحد ما تحط رقم، كل المستخدمين بيشوفوا كل حاجة."}</p><div class="row"><button class="b pri" id="pin">${pinSet() ? "تغيير الرقم" : "تعيين رقم سري"}</button>${pinSet() ? '<button class="b red" id="pinrm">إلغاء الرقم</button>' : ""}</div></div>
+  <div class="sheet"><b>آخر تغييرات الأسعار</b>${
+    (c.plog || []).length
+      ? `<table><tbody>${c.plog
+          .slice(0, 15)
+          .map((x) => `<tr><td>${x.d}</td><td>${esc(x.t)}</td></tr>`)
+          .join("")}</tbody></table>`
+      : '<div class="empty">لسه مفيش</div>'
+  }</div>`;
+        $("#ac").onclick = () => {
+          const d = fields(
+            "عميل جديد",
+            [{ id: "nm", l: "اسم العميل" }],
+            async () => {
+              const n = V(d, "nm").trim();
+              if (!n) {
+                alert("اكتب الاسم");
+                return false;
+              }
+              if (custList().includes(n)) {
+                alert("العميل موجود");
+                return false;
+              }
+              S.cfg.custs = [...(S.cfg.custs || []), n];
+              await saveCfg();
+            },
+          );
+        };
+        document.querySelectorAll("[data-rc]").forEach(
+          (b) =>
+            (b.onclick = async () => {
+              if (confirm("تشيل العميل من القايمة؟ (ديونه المتسجلة تفضل)")) {
+                S.cfg.custs.splice(+b.dataset.rc, 1);
+                await saveCfg();
+                render();
+              }
+            }),
+        );
+        const svcForm = (sv) => {
+          const d = fields(
+            sv ? "تعديل خدمة" : "نوع خدمة",
+            [
+              { id: "nm", l: "اسم الخدمة", v: sv?.name },
+              { id: "rt", l: "سعر الكيلو", t: "number", v: sv?.rate },
+            ],
+            async () => {
+              const n = V(d, "nm").trim(),
+                r = +V(d, "rt");
+              if (!n || !(r > 0)) {
+                alert("اكتب الاسم والسعر");
+                return false;
+              }
+              if (sv) Object.assign(sv, { name: n, rate: r });
+              else (S.cfg.svcs ??= []).push({ id: uid(), name: n, rate: r });
+              await saveCfg();
+            },
+          );
+        };
+        $("#as").onclick = () => svcForm();
+        document
+          .querySelectorAll("[data-es]")
+          .forEach(
+            (b) =>
+              (b.onclick = () =>
+                svcForm(S.cfg.svcs.find((x) => x.id === b.dataset.es))),
+          );
+        document.querySelectorAll("[data-rs]").forEach(
+          (b) =>
+            (b.onclick = async () => {
+              if (confirm("تمسح الخدمة؟")) {
+                S.cfg.svcs = S.cfg.svcs.filter((x) => x.id !== b.dataset.rs);
+                await saveCfg();
+                render();
+              }
+            }),
+        );
+        $("#pin").onclick = () => {
+          const d = fields(
+            "رقم المدير السري",
+            [
+              { id: "p1", l: "الرقم الجديد (4 أرقام أو أكتر)", t: "password" },
+              { id: "p2", l: "تأكيد الرقم", t: "password" },
+            ],
+            async () => {
+              const a = V(d, "p1");
+              if (a.length < 4 || a !== V(d, "p2")) {
+                alert("الرقم لازم يكون 4 أو أكتر ومتطابق في الخانتين");
+                return false;
+              }
+              S.cfg.pin = await hash(a);
+              S.admin = true;
+              await saveCfg();
+            },
+          );
+        };
+        if ($("#pinrm"))
+          $("#pinrm").onclick = async () => {
+            if (confirm("تلغي الرقم السري؟ كل المستخدمين هيشوفوا كل حاجة.")) {
+              S.cfg.pin = "";
+              await saveCfg();
+              render();
+            }
+          };
+      }
+
+      /* ---------- views ---------- */
+      const views = {
+        day() {
+          if (!isAdmin()) S.day = iso();
+          const es = ent(S.day),
+            s = stats(es);
+          $("#main").innerHTML =
+            `${isAdmin() ? `<div class="row"><input type="date" id="dp" value="${S.day}" style="width:auto"><button class="b pri" data-a="pos">🛒 الكاشير</button><button class="b" data-a="stk">📦 تعديل مخزون</button><button class="b" data-a="buy">+ شراء بضاعة</button><button class="b" data-a="exp">+ مصروف</button><button class="b" data-a="pay">+ سداد عميل</button></div>` : ""}
+    <div class="strip"><div><span>قطاعي</span><b class="n">${f(s.r)}</b></div><div><span>جملة</span><b class="n">${f(s.w)}</b></div><div><span>فرم وتقطيع</span><b class="n">${f(s.svc)}</b></div>
+      <div><span>داخل الخزنة</span><b class="n in">${f(s.cashIn)}</b></div><div><span>خارج الخزنة</span><b class="n out">${f(s.cashOut)}</b></div><div><span>صافي الخزنة</span><b class="n">${f(s.cashIn - s.cashOut)}</b></div></div>
+    <div class="sheet">${
+      es.length
+        ? `<table><thead><tr><th>البيان</th><th>الإجمالي</th><th>المدفوع</th><th>الباقي</th><th></th></tr></thead><tbody>${es
+            .map((e) => {
+              const rem =
+                e.t === "sale" || e.t === "svc" ? e.total - e.paid : 0;
+              return `<tr><td>${desc(e)}</td><td class="n">${amount(e) == null ? "" : f(amount(e))}</td><td class="n">${e.t === "sale" || e.t === "svc" || e.t === "buy" ? f(e.paid) : ""}</td><td class="n ${rem > 0 ? "gold" : ""}">${rem > 0 ? f(rem) : ""}</td><td>${isAdmin() ? `<button class="b red" data-del="${e.id}">حذف</button>` : ""}</td></tr>`;
+            })
+            .join("")}</tbody></table>`
+        : '<div class="empty">مفيش حركات في اليوم ده</div>'
+    }</div>`;
+          if ($("#dp"))
+            $("#dp").onchange = (e) => {
+              S.day = e.target.value || iso();
+              render();
+            };
+          document.querySelectorAll("[data-a]").forEach(
+            (b) =>
+              (b.onclick = () =>
+                ({
+                  pos: () => {
+                    S.view = "pos";
+                    render();
+                  },
+                  stk: () => stockForm(),
+                  buy: buyForm,
+                  exp: expForm,
+                  pay: () => payForm(),
+                })[b.dataset.a]()),
+          );
+          document
+            .querySelectorAll("[data-del]")
+            .forEach((b) => (b.onclick = () => delEntry(b.dataset.del)));
+        },
+        items() {
+          const cats = [...new Set(S.items.map((x) => x.cat || NOCAT))].sort(
+            (a, b) => a.localeCompare(b, "ar"),
+          );
+          const fc = cats.includes(S.cat) ? S.cat : "",
+            q = (S.q || "").trim();
+          const list = S.items
+            .filter(
+              (x) =>
+                (!fc || (x.cat || NOCAT) === fc) &&
+                (!q || norm(x.name).includes(norm(q))) &&
+                (!S.low || x.stock <= minOf(x)),
+            )
+            .sort(
+              (a, b) =>
+                (a.cat || "~").localeCompare(b.cat || "~", "ar") ||
+                a.name.localeCompare(b.name, "ar"),
+            );
+          $("#main").innerHTML =
+            `<div class="row"><button class="b pri" id="ni">+ صنف جديد</button>
+      <label class="b pri" style="margin:0;color:#fff">📥 استيراد من Excel<input type="file" id="imx" accept=".xlsx,.xls,.csv" hidden></label>
+      <button class="b" id="tp">تحميل نموذج Excel</button><button class="b" id="ex2">تصدير الأصناف</button><button class="b pri" id="pc2">💲 تغيير الأسعار</button><button class="b pri" id="sk">📦 تعديل المخزون</button></div>
+    <div class="row"><select id="fc" style="width:auto"><option value="">كل الكاتيجوريز (${S.items.length})</option>${cats.map((c) => `<option ${c === fc ? "selected" : ""} value="${esc(c)}">${esc(c)} (${S.items.filter((x) => (x.cat || NOCAT) === c).length})</option>`).join("")}</select>
+      <input id="sq" placeholder="بحث باسم الصنف…" value="${esc(q)}" style="width:220px"><label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" id="lw" ${S.low ? "checked" : ""} style="width:auto"> الناقص بس</label></div>
+    <div class="sheet">${list.length ? `<table><thead><tr><th>الكاتيجوري</th><th>الصنف</th><th>الوحدة</th><th>تكلفة</th><th>قطاعي</th><th>جملة</th><th>الرصيد</th><th></th></tr></thead><tbody>${list.map((x) => `<tr><td><span class="tag">${esc(x.cat || NOCAT)}</span></td><td>${esc(x.name)}</td><td>${esc(x.unit)}</td><td class="n">${f(x.cost)}</td><td class="n">${f(x.rp)}</td><td class="n">${f(x.wp)}</td><td class="n ${x.stock <= 0 ? "out" : x.stock <= minOf(x) ? "gold" : ""}">${f(x.stock)}${x.stock <= 0 ? " ⛔" : x.stock <= minOf(x) ? " ⚠" : ""}</td><td><button class="b" data-sk="${x.id}">📦 مخزون</button> <button class="b" data-e="${x.id}">تعديل</button> <button class="b red" data-d="${x.id}">حذف</button></td></tr>`).join("")}</tbody></table>` : '<div class="empty">ضيف الأصناف يدوي أو استورد ملف Excel فيه 3 شيتات (لحوم / فراخ / أسماك)</div>'}</div>`;
+          $("#ni").onclick = () => itemForm();
+          $("#pc2").onclick = priceForm;
+          $("#sk").onclick = () => stockForm();
+          document
+            .querySelectorAll("[data-sk]")
+            .forEach((b) => (b.onclick = () => stockForm(item(b.dataset.sk))));
+          $("#lw").onchange = (e) => {
+            S.low = e.target.checked;
+            render();
+          };
+          $("#tp").onclick = itemsTemplate;
+          $("#ex2").onclick = itemsExport;
+          $("#imx").onchange = (e) => {
+            const fl = e.target.files[0];
+            if (fl) importItems(fl);
+          };
+          $("#fc").onchange = (e) => {
+            S.cat = e.target.value;
+            render();
+          };
+          $("#sq").onchange = (e) => {
+            S.q = e.target.value;
+            render();
+          };
+          document
+            .querySelectorAll("[data-e]")
+            .forEach((b) => (b.onclick = () => itemForm(item(b.dataset.e))));
+          document.querySelectorAll("[data-d]").forEach(
+            (b) =>
+              (b.onclick = async () => {
+                if (confirm("تمسح الصنف؟ (الفواتير القديمة مش هتتأثر)")) {
+                  S.items = S.items.filter((x) => x.id !== b.dataset.d);
+                  await saveItems();
+                  render();
+                }
+              }),
+          );
+        },
+        debts() {
+          const D = debts(),
+            tot = D.reduce((a, [, v]) => a + Math.max(0, v), 0);
+          $("#main").innerHTML =
+            `<div class="strip"><div><span>إجمالي الديون عند العملاء</span><b class="n gold">${f(tot)}</b></div></div><div class="sheet">${D.length ? `<table><thead><tr><th>العميل</th><th>الباقي عليه</th><th></th></tr></thead><tbody>${D.map(([c, v]) => `<tr><td>${esc(c)}</td><td class="n ${v > 0 ? "gold" : "in"}">${v > 0 ? f(v) : "له " + f(-v)}</td><td>${v > 0 ? `<button class="b" data-p="${esc(c)}" data-v="${v}">سداد</button>` : ""}</td></tr>`).join("")}</tbody></table>` : '<div class="empty">مفيش ديون</div>'}</div>`;
+          document
+            .querySelectorAll("[data-p]")
+            .forEach(
+              (b) => (b.onclick = () => payForm(b.dataset.p, b.dataset.v)),
+            );
+        },
+        report() {
+          const m = S.rep,
+            es = monthEs(m),
+            s = stats(es),
+            days = Object.keys(S.months[m] || {}).sort();
+          const top = {};
+          for (const e of es)
+            if (e.t === "sale")
+              for (const l of e.lines) {
+                const o = top[l.n] || (top[l.n] = { q: 0, v: 0, u: l.u });
+                o.q += l.q;
+                o.v += l.q * l.p;
+              }
+          const tp = Object.entries(top)
+            .sort((a, b) => b[1].v - a[1].v)
+            .slice(0, 10);
+          $("#main").innerHTML =
+            `<div class="row"><input type="month" id="mp" value="${m}" style="width:auto"><button class="b" id="xl">تصدير Excel</button></div>
+    <div class="strip"><div><span>قطاعي</span><b class="n">${f(s.r)}</b></div><div><span>جملة</span><b class="n">${f(s.w)}</b></div><div><span>فرم وتقطيع</span><b class="n">${f(s.svc)}</b></div><div><span>مشتريات بضاعة</span><b class="n">${f(s.buy)}</b></div><div><span>مصاريف</span><b class="n out">${f(s.exp)}</b></div><div><span>صافي المكسب</span><b class="n in">${f(s.profit)}</b></div></div>
+    <div class="hint" style="color:var(--ink2);margin-bottom:10px">المكسب = (سعر البيع − تكلفة الصنف وقت البيع) + إيراد الفرم والتقطيع − المصاريف. مشتريات البضاعة مش بتتخصم هنا لأنها محسوبة في تكلفة الصنف.</div>
+    <div class="sheet"><b>يوم بيوم</b><table><thead><tr><th>اليوم</th><th>قطاعي</th><th>جملة</th><th>فرم/تقطيع</th><th>مصاريف</th><th>مكسب</th></tr></thead><tbody>${
+      days
+        .map((d) => {
+          const x = stats(S.months[m][d]);
+          return `<tr><td>${d}</td><td class="n">${f(x.r)}</td><td class="n">${f(x.w)}</td><td class="n">${f(x.svc)}</td><td class="n">${f(x.exp)}</td><td class="n">${f(x.profit)}</td></tr>`;
+        })
+        .join("") || '<tr><td colspan="6" class="empty">مفيش بيانات</td></tr>'
+    }</tbody></table></div>
+    <div class="sheet"><b>أكتر الأصناف مبيعًا</b><table><tbody>${tp.map(([n, o]) => `<tr><td>${esc(n)}</td><td class="n">${f(o.q)} ${esc(o.u || "")}</td><td class="n">${f(o.v)}</td></tr>`).join("") || '<tr><td class="empty">—</td></tr>'}</tbody></table></div>`;
+          $("#mp").onchange = (e) => {
+            S.rep = e.target.value || m;
+            render();
+          };
+          $("#xl").onclick = () => {
+            const rows = [];
+            for (const d of days)
+              for (const e of S.months[m][d])
+                rows.push({
+                  التاريخ: d,
+                  النوع: {
+                    sale: "بيع " + KIND[e.k || "r"],
+                    svc: "فرم/تقطيع",
+                    buy: "شراء",
+                    exp: "مصروف",
+                    pay: "سداد",
+                    adj: "تعديل مخزون",
+                  }[e.t],
+                  العميل_أو_المورد: e.cust || e.sup || "",
+                  البيان: desc(e).replace(/<[^>]+>/g, ""),
+                  الإجمالي: amount(e),
+                  المدفوع: e.paid ?? (e.t === "pay" ? e.amt : ""),
+                });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), m);
+            XLSX.writeFile(wb, `تلاجة-القدس-${m}.xlsx`);
+          };
+        },
+        backup() {
+          $("#main").innerHTML =
+            `<div class="sheet"><p>نسخة احتياطية كاملة (أصناف + كل الحركات + العملاء والخدمات والرقم السري) في ملف JSON.</p><div class="row"><button class="b pri" id="ex">تصدير نسخة احتياطية</button><label class="b" style="margin:0">استرجاع من ملف<input type="file" id="im" accept=".json" hidden></label></div></div>`;
+          $("#ex").onclick = () => {
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(
+              new Blob(
+                [
+                  JSON.stringify({
+                    items: S.items,
+                    months: S.months,
+                    cfg: S.cfg,
+                  }),
+                ],
+                { type: "application/json" },
+              ),
+            );
+            a.download = `alqudus-backup-${iso()}.json`;
+            a.click();
+          };
+          $("#im").onchange = async (e) => {
+            const fl = e.target.files[0];
+            if (!fl || !confirm("الاسترجاع هيكتب فوق البيانات الحالية. تكمّل؟"))
+              return;
+            try {
+              const j = JSON.parse(await fl.text());
+              S.items = j.items || [];
+              await saveItems();
+              if (j.cfg) {
+                S.cfg = { ...S.cfg, ...j.cfg };
+                await saveCfg();
+              }
+              for (const [m, days] of Object.entries(j.months || {}))
+                await sb
+                  .from("docs")
+                  .upsert({ path: "months/" + m, data: { m, days } });
+              await load();
+              render();
+              alert("تم الاسترجاع");
+            } catch (x) {
+              alert("الملف غير صالح");
+            }
+          };
+        },
+      };
+      views.pos = posView;
+      views.setup = setupView;
+      const tabs = () =>
+        isAdmin()
+          ? [
+              ["pos", "🛒 الكاشير"],
+              ["day", "اليوم"],
+              ["items", "الأصناف والمخزون"],
+              ["setup", "العملاء والخدمات"],
+              ["debts", "الديون"],
+              ["report", "التقارير"],
+              ["backup", "نسخ احتياطي"],
+            ]
+          : [
+              ["pos", "🛒 الكاشير"],
+              ["day", "فواتير اليوم"],
+            ];
+      function render() {
+        if ($("#modal")) return;
+        const T = tabs();
+        if (!T.some((t) => t[0] === S.view)) S.view = "pos";
+        app.innerHTML = `<header><h1>❄️ تلاجة القدس</h1><nav>${T.map(([k, l]) => `<button data-v="${k}" class="${S.view === k ? "on" : ""}">${l}</button>`).join("")}</nav>${pinSet() ? (S.admin ? '<button class="b" id="lk">🔒 قفل (وضع الكاشير)</button>' : '<button class="b" id="ul">👑 دخول المدير</button>') : ""}<button class="b" id="lo">خروج</button></header><main><div id="ab"></div><div id="main"></div></main>`;
+        document.querySelectorAll("nav button").forEach(
+          (b) =>
+            (b.onclick = () => {
+              S.view = b.dataset.v;
+              render();
+            }),
+        );
+        $("#ab").innerHTML = alertBar();
+        if ($("#lowgo"))
+          $("#lowgo").onclick = () => {
+            S.view = "items";
+            S.low = true;
+            S.cat = "";
+            S.q = "";
+            render();
+          };
+        if ($("#lk"))
+          $("#lk").onclick = () => {
+            S.admin = false;
+            render();
+          };
+        if ($("#ul"))
+          $("#ul").onclick = () => {
+            const d = fields(
+              "دخول المدير",
+              [{ id: "pn", l: "الرقم السري", t: "password" }],
+              async () => {
+                if ((await hash(V(d, "pn"))) === S.cfg.pin) S.admin = true;
+                else {
+                  alert("الرقم غلط");
+                  return false;
+                }
+              },
+            );
+          };
+        $("#lo").onclick = async () => {
+          S.admin = false;
+          await sb.auth.signOut();
+          login();
+        };
+        views[S.view]();
+      }
+      function login(msg = "") {
+        app.innerHTML = `<div class="login sheet"><h2>❄️ تلاجة القدس</h2><label>الإيميل<input id="em" type="email"></label><label>كلمة السر<input id="pw" type="password"></label><div class="out">${esc(msg)}</div><button class="b pri" id="go" style="width:100%">دخول</button></div>`;
+        const go = async () => {
+          const r = await sb.auth.signInWithPassword({
+            email: $("#em").value.trim(),
+            password: $("#pw").value,
+          });
+          r.error ? login("الإيميل أو كلمة السر غلط") : start();
+        };
+        $("#go").onclick = go;
+        $("#pw").onkeydown = (e) => {
+          if (e.key === "Enter") go();
+        };
+      }
+      let sub = false;
+      async function start() {
+        await load();
+        render();
+        if (!sub) {
+          sub = true;
+          sb.channel("docs-live")
+            .on(
+              "postgres_changes",
+              { event: "*", schema: "public", table: "docs" },
+              () => load().then(render),
+            )
+            .subscribe();
+        }
+      }
+      (async () => {
+        const { data } = await sb.auth.getSession();
+        data.session ? start() : login();
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,16 @@
+{
+  "name": "alqudus-freezer",
+  "version": "1.0.0",
+  "description": "تلاجة القدس - دفتر المبيعات والمخزون",
+  "main": "main.js",
+  "author": "Al Qudus",
+  "scripts": { "start": "electron .", "dist": "electron-builder --win nsis portable" },
+  "devDependencies": { "electron": "33.2.1", "electron-builder": "25.1.8" },
+  "build": {
+    "appId": "com.alqudus.freezer", "productName": "AlQudusFreezer", "executableName": "AlQudusFreezer",
+    "directories": { "output": "dist" },
+    "files": ["index.html", "config.js", "main.js", "vendor/**"],
+    "win": { "target": ["nsis", "portable"] },
+    "nsis": { "oneClick": false, "allowToChangeInstallationDirectory": true }
+  }
+}
