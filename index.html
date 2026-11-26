@@ -1380,21 +1380,21 @@
         const frac = P.pay === "full" ? 1 : P.pay === "none" ? 0 : +P.pay,
           paid = r2(total * frac);
         const R = `<h3 style="margin:0 0 6px">الفاتورة</h3>${cart.length ? `<table><tbody>${rows}</tbody></table>` : '<div class="empty">اختار أصناف عشان تتضاف هنا</div>'}<div class="tot">الإجمالي <b>${f(total)}</b></div>
-      <label>العميل<select id="pcu"><option value="">نقدي (من غير اسم)</option>${custs.map((c) => `<option value="${esc(c)}" ${P.cust === c ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
-      <div class="grid" style="grid-template-columns:repeat(2,1fr)">${[
-        ["full", "✅ دفع كامل"],
-        ["none", "🕒 آجل كامل"],
-        ["0.25", "مدفوع ¼"],
-        ["0.5", "مدفوع ½"],
-        ["0.75", "مدفوع ¾"],
-      ]
-        .map(
-          ([v, l]) =>
-            `<button class="big ${String(P.pay) === v ? "on" : ""}" data-pp="${v}">${l}</button>`,
-        )
-        .join("")}</div>
-      <div class="tot" style="font-size:15px">المدفوع <b>${f(paid)}</b> — الباقي <b class="${total - paid > 0 ? "gold" : ""}">${f(total - paid)}</b></div>
-      <button class="big on" id="pcf" style="width:100%">تأكيد الفاتورة</button><div class="row"><button class="b" id="pclr">مسح الفاتورة</button></div>`;
+    <label>العميل<select id="pcu"><option value="">نقدي (من غير اسم)</option>${custs.map((c) => `<option value="${esc(c)}" ${P.cust === c ? "selected" : ""}>${esc(c)}</option>`).join("")}</select></label>
+    <div class="grid" style="grid-template-columns:repeat(2,1fr)">${[
+      ["full", "✅ دفع كامل"],
+      ["none", "🕒 آجل كامل"],
+      ["0.25", "مدفوع ¼"],
+      ["0.5", "مدفوع ½"],
+      ["0.75", "مدفوع ¾"],
+    ]
+      .map(
+        ([v, l]) =>
+          `<button class="big ${String(P.pay) === v ? "on" : ""}" data-pp="${v}">${l}</button>`,
+      )
+      .join("")}</div>
+    <div class="tot" style="font-size:15px">المدفوع <b>${f(paid)}</b> — الباقي <b class="${total - paid > 0 ? "gold" : ""}">${f(total - paid)}</b></div>
+    <button class="big on" id="pcf" style="width:100%">تأكيد الفاتورة</button><div class="row"><button class="b" id="pclr">مسح الفاتورة</button></div>`;
         $("#main").innerHTML =
           `<div class="pos"><div class="sheet">${L}</div><div class="sheet">${R}</div></div>`;
         const M = $("#main"),
@@ -1590,16 +1590,16 @@
         const c = S.cfg;
         $("#main").innerHTML =
           `<div class="sheet"><b>العملاء</b> <span style="color:var(--ink2)">(الكاشير بيختارهم من قايمة)</span><div class="row"><button class="b pri" id="ac">+ عميل جديد</button></div>${(c.custs || []).length ? `<div class="row">${c.custs.map((n, i) => `<span class="tag">${esc(n)} <button class="b red" style="padding:0 6px" data-rc="${i}">✕</button></span>`).join("")}</div>` : '<div class="empty">مفيش عملاء متسجلين</div>'}</div>
-        <div class="sheet"><b>أنواع الفرم والتقطيع وسعر الكيلو</b><div class="row"><button class="b pri" id="as">+ نوع خدمة</button></div>${(c.svcs || []).length ? `<table><tbody>${c.svcs.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${f(s.rate)} / كجم</td><td><button class="b" data-es="${s.id}">تعديل</button> <button class="b red" data-rs="${s.id}">حذف</button></td></tr>`).join("")}</tbody></table>` : '<div class="empty">ضيف الخدمات (فرم لحمة، تقطيع فراخ…)</div>'}</div>
-        <div class="sheet"><b>رقم المدير السري</b><p style="color:var(--ink2);margin:6px 0">${pinSet() ? "متفعّل: البرنامج بيفتح على شاشة الكاشير، والمدير بس هو اللي بيدخل على الباقي بالرقم." : "لحد ما تحط رقم، كل المستخدمين بيشوفوا كل حاجة."}</p><div class="row"><button class="b pri" id="pin">${pinSet() ? "تغيير الرقم" : "تعيين رقم سري"}</button>${pinSet() ? '<button class="b red" id="pinrm">إلغاء الرقم</button>' : ""}</div></div>
-        <div class="sheet"><b>آخر تغييرات الأسعار</b>${
-        (c.plog || []).length
-          ? `<table><tbody>${c.plog
-              .slice(0, 15)
-              .map((x) => `<tr><td>${x.d}</td><td>${esc(x.t)}</td></tr>`)
-              .join("")}</tbody></table>`
-          : '<div class="empty">لسه مفيش</div>'
-      }</div>`;
+    <div class="sheet"><b>أنواع الفرم والتقطيع وسعر الكيلو</b><div class="row"><button class="b pri" id="as">+ نوع خدمة</button></div>${(c.svcs || []).length ? `<table><tbody>${c.svcs.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${f(s.rate)} / كجم</td><td><button class="b" data-es="${s.id}">تعديل</button> <button class="b red" data-rs="${s.id}">حذف</button></td></tr>`).join("")}</tbody></table>` : '<div class="empty">ضيف الخدمات (فرم لحمة، تقطيع فراخ…)</div>'}</div>
+    <div class="sheet"><b>رقم المدير السري</b><p style="color:var(--ink2);margin:6px 0">${pinSet() ? "متفعّل: البرنامج بيفتح على شاشة الكاشير، والمدير بس هو اللي بيدخل على الباقي بالرقم." : "لحد ما تحط رقم، كل المستخدمين بيشوفوا كل حاجة."}</p><div class="row"><button class="b pri" id="pin">${pinSet() ? "تغيير الرقم" : "تعيين رقم سري"}</button>${pinSet() ? '<button class="b red" id="pinrm">إلغاء الرقم</button>' : ""}</div></div>
+    <div class="sheet"><b>آخر تغييرات الأسعار</b>${
+      (c.plog || []).length
+        ? `<table><tbody>${c.plog
+            .slice(0, 15)
+            .map((x) => `<tr><td>${x.d}</td><td>${esc(x.t)}</td></tr>`)
+            .join("")}</tbody></table>`
+        : '<div class="empty">لسه مفيش</div>'
+    }</div>`;
         $("#ac").onclick = () => {
           const d = fields(
             "عميل جديد",
@@ -1744,8 +1744,8 @@
             s = stats(es);
           $("#main").innerHTML =
             `${isAdmin() ? `<div class="row"><input type="date" id="dp" value="${S.day}" style="width:auto"><button class="b pri" data-a="pos">🛒 الكاشير</button><button class="b" data-a="stk">📦 تعديل مخزون</button><button class="b" data-a="buy">+ شراء بضاعة</button><button class="b" data-a="exp">+ مصروف</button><button class="b" data-a="pay">+ سداد عميل</button></div>` : ""}
-        <div class="strip"><div><span>قطاعي</span><b class="n">${f(s.r)}</b></div><div><span>جملة</span><b class="n">${f(s.w)}</b></div><div><span>فرم وتقطيع</span><b class="n">${f(s.svc)}</b></div>
-        <div><span>داخل الخزنة</span><b class="n in">${f(s.cashIn)}</b></div><div><span>خارج الخزنة</span><b class="n out">${f(s.cashOut)}</b></div><div><span>صافي الخزنة</span><b class="n">${f(s.cashIn - s.cashOut)}</b></div></div>
+      <div class="strip"><div><span>قطاعي</span><b class="n">${f(s.r)}</b></div><div><span>جملة</span><b class="n">${f(s.w)}</b></div><div><span>فرم وتقطيع</span><b class="n">${f(s.svc)}</b></div>
+      <div><span>داخل الخزنة</span><b class="n in">${f(s.cashIn)}</b></div><div><span>خارج الخزنة</span><b class="n out">${f(s.cashOut)}</b></div><div><span>صافي الخزنة</span><b class="n">${f(s.cashIn - s.cashOut)}</b></div></div>
       <div class="sheet">${
         es.length
           ? `<table><thead><tr><th>البيان</th><th>الإجمالي</th><th>المدفوع</th><th>الباقي</th><th></th></tr></thead><tbody>${es
@@ -1798,13 +1798,15 @@
                 (a.cat || "~").localeCompare(b.cat || "~", "ar") ||
                 a.name.localeCompare(b.name, "ar"),
             );
+          S.sel = new Set([...(S.sel || [])].filter((id) => item(id)));
+          const nsel = S.sel.size;
           $("#main").innerHTML =
             `<div class="row"><button class="b pri" id="ni">+ صنف جديد</button>
       <label class="b pri" style="margin:0;color:#fff">📥 استيراد من Excel<input type="file" id="imx" accept=".xlsx,.xls,.csv" hidden></label>
       <button class="b" id="tp">تحميل نموذج Excel</button><button class="b" id="ex2">تصدير الأصناف</button><button class="b pri" id="pc2">💲 تغيير الأسعار</button><button class="b pri" id="sk">📦 تعديل المخزون</button></div>
       <div class="row"><select id="fc" style="width:auto"><option value="">كل الكاتيجوريز (${S.items.length})</option>${cats.map((c) => `<option ${c === fc ? "selected" : ""} value="${esc(c)}">${esc(c)} (${S.items.filter((x) => (x.cat || NOCAT) === c).length})</option>`).join("")}</select>
-      <input id="sq" placeholder="بحث باسم الصنف…" value="${esc(q)}" style="width:220px"><label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" id="lw" ${S.low ? "checked" : ""} style="width:auto"> الناقص بس</label></div>
-      <div class="sheet">${list.length ? `<table><thead><tr><th>الكاتيجوري</th><th>الصنف</th><th>الوحدة</th><th>تكلفة</th><th>قطاعي</th><th>جملة</th><th>الرصيد</th><th></th></tr></thead><tbody>${list.map((x) => `<tr><td><span class="tag">${esc(x.cat || NOCAT)}</span></td><td>${x.top ? "⭐ " : ""}${esc(x.name)}</td><td>${esc(x.unit)}</td><td class="n">${f(x.cost)}</td><td class="n">${f(x.rp)}</td><td class="n">${f(x.wp)}</td><td class="n ${x.stock <= 0 ? "out" : x.stock <= minOf(x) ? "gold" : ""}">${f(x.stock)}${x.stock <= 0 ? " ⛔" : x.stock <= minOf(x) ? " ⚠" : ""}</td><td><button class="b" data-sk="${x.id}">📦 مخزون</button> <button class="b" data-e="${x.id}">تعديل</button> <button class="b red" data-d="${x.id}">حذف</button></td></tr>`).join("")}</tbody></table>` : '<div class="empty">ضيف الأصناف يدوي أو استورد ملف Excel فيه 3 شيتات (لحوم / فراخ / أسماك)</div>'}</div>`;
+      <input id="sq" placeholder="بحث باسم الصنف…" value="${esc(q)}" style="width:220px"><label style="margin:0;display:flex;gap:6px;align-items:center"><input type="checkbox" id="lw" ${S.low ? "checked" : ""} style="width:auto"> الناقص بس</label><button class="b red" id="bd" ${nsel ? "" : "disabled"}>🗑 حذف المحدد (${nsel})</button></div>
+      <div class="sheet">${list.length ? `<table><thead><tr><th style="width:32px"><input type="checkbox" id="sa" title="تحديد كل الأصناف المعروضة" style="width:auto" ${list.length && list.every((x) => S.sel.has(x.id)) ? "checked" : ""}></th><th>الكاتيجوري</th><th>الصنف</th><th>الوحدة</th><th>تكلفة</th><th>قطاعي</th><th>جملة</th><th>الرصيد</th><th></th></tr></thead><tbody>${list.map((x) => `<tr><td><input type="checkbox" data-s="${x.id}" style="width:auto" ${S.sel.has(x.id) ? "checked" : ""}></td><td><span class="tag">${esc(x.cat || NOCAT)}</span></td><td>${x.top ? "⭐ " : ""}${esc(x.name)}</td><td>${esc(x.unit)}</td><td class="n">${f(x.cost)}</td><td class="n">${f(x.rp)}</td><td class="n">${f(x.wp)}</td><td class="n ${x.stock <= 0 ? "out" : x.stock <= minOf(x) ? "gold" : ""}">${f(x.stock)}${x.stock <= 0 ? " ⛔" : x.stock <= minOf(x) ? " ⚠" : ""}</td><td><button class="b" data-sk="${x.id}">📦 مخزون</button> <button class="b" data-e="${x.id}">تعديل</button> <button class="b red" data-d="${x.id}">حذف</button></td></tr>`).join("")}</tbody></table>` : '<div class="empty">ضيف الأصناف يدوي أو استورد ملف Excel فيه 3 شيتات (لحوم / فراخ / أسماك)</div>'}</div>`;
           $("#ni").onclick = () => itemForm();
           $("#pc2").onclick = priceForm;
           $("#sk").onclick = () => stockForm();
@@ -1813,6 +1815,7 @@
             .forEach((b) => (b.onclick = () => stockForm(item(b.dataset.sk))));
           $("#lw").onchange = (e) => {
             S.low = e.target.checked;
+            S.sel.clear();
             render();
           };
           $("#tp").onclick = itemsTemplate;
@@ -1821,12 +1824,63 @@
             const fl = e.target.files[0];
             if (fl) importItems(fl);
           };
+          const upd = () => {
+            const n = S.sel.size,
+              b = $("#bd");
+            b.textContent = `🗑 حذف المحدد (${n})`;
+            b.disabled = !n;
+            const a = $("#sa");
+            if (a)
+              a.checked = list.length > 0 && list.every((x) => S.sel.has(x.id));
+          };
+          document.querySelectorAll("[data-s]").forEach(
+            (c) =>
+              (c.onchange = () => {
+                c.checked ? S.sel.add(c.dataset.s) : S.sel.delete(c.dataset.s);
+                upd();
+              }),
+          );
+          if ($("#sa"))
+            $("#sa").onchange = (e) => {
+              list.forEach((x) =>
+                e.target.checked ? S.sel.add(x.id) : S.sel.delete(x.id),
+              );
+              document
+                .querySelectorAll("[data-s]")
+                .forEach((c) => (c.checked = e.target.checked));
+              upd();
+            };
+          $("#bd").onclick = async () => {
+            const del = S.items.filter((x) => S.sel.has(x.id));
+            if (!del.length) return;
+            const by = {};
+            del.forEach((x) => {
+              const c = x.cat || NOCAT;
+              by[c] = (by[c] || 0) + 1;
+            });
+            if (
+              !confirm(
+                `هتمسح ${del.length} صنف (${Object.entries(by)
+                  .map(([c, n]) => c + ": " + n)
+                  .join("، ")}).\nالفواتير القديمة مش هتتأثر. تكمّل؟`,
+              )
+            )
+              return;
+            S.items = S.items.filter((x) => !S.sel.has(x.id));
+            S.sel.clear();
+            const ok = await saveItems();
+            if (ok) toast(`تم مسح ${del.length} صنف`);
+            else await load();
+            render();
+          };
           $("#fc").onchange = (e) => {
             S.cat = e.target.value;
+            S.sel.clear();
             render();
           };
           $("#sq").onchange = (e) => {
             S.q = e.target.value;
+            S.sel.clear();
             render();
           };
           document
